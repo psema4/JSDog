@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+if [ -z $1 ]
+then
+    echo "usage: jsdogs <folder>"
+    exit 1;
+fi
+
+if [ -d "$1" ]
+then
+    echo "generating documentation in $1"
+
+    for i in $( ls *.js | grep -v 'tests-' ); do
+        tf="t/$i"
+        if [ -f "$tf" ]
+        then
+            echo " found $tf"
+        else
+            tf="tests-$i"
+            echo " checking for tests- prefix in current directory"
+        fi
+        of="$i.html"
+
+        if [ -f "$tf" ]
+        then
+            echo "processing $i (testfile: $tf)"
+            jsdog -s $i -t $tf > $1/$of
+        else
+            echo "processing $i (testfile: no)"
+            jsdog -s $i > $1/$of
+        fi
+    done
+else
+    echo "output folder does not exist!"
+fi

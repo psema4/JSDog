@@ -1,0 +1,15 @@
+{
+    "name":         "jsdog",
+    "version":      "0.6.3",
+    "author":       "Scott Elcomb <psema4@gmail.com> (http://www.psema4.com/)",
+    "description":  "Simple JSDoc documentation generator",
+    "main":         "jsdog.js",
+    "directories":  { "lib":        ".",
+                      "bin":        "bin"
+                    },
+    "repository":   { "url":        ""  },
+    "engines":      { "node":       "*" },
+    "dependencies": { "jade":       "0.10.x",
+                      "nopt":       "1.0.x"},
+    "keywords":     ["documentation", "docs", "jsdoc"]
+}

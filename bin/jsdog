@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+
+/** jsdog - Simple CLI wrapper for jsdog.js
+ *
+ * @author Scott Elcomb <psema4@gmail.com> (http://www.psema4.com/)
+ */
+
+var util           = require('util'),
+    fs             = require('fs'),
+    jade           = require('jade'),
+    jsdog          = require('jsdog'),
+    nopt           = require('nopt'),
+    Stream         = require('stream').Stream,
+    path           = require('path'),
+    knownOpts      = { "source":   path,
+                       "tests":    path,
+                       "template": path,
+                       "title":    String,
+                       "dump":     Boolean,
+                       "loglevel": Number,
+                       "help":     Boolean,
+                       "wrap":     String,
+                       "ignore":   Boolean
+                     },
+    shortOpts      = { "s": "--source",
+                       "t": "--tests",
+                       "m": "--template",
+                       "n": "--title",
+                       "v": ["--loglevel", "2"],
+                       "h": "--help",
+                       "w": "--wrap",
+                       "i": "--ignore"
+                     };
+
+var parsed = nopt(knownOpts, shortOpts, process.argv, 2);
+
+if (parsed.help) {
+    console.log(
+        "Usage: jsdog [options]\n\nOptions:\n" +
+        "  -v                               verbose logging (loglevel 2)\n" +
+        "  --help, -h                       this screen\n" +
+        "  --ignore, -i                     ignore extraneous newlines in comments\n" +
+        "  --loglevel <number>              set logging level (0-3)\n" +
+        "  --template <path>, -m <path>     path to the jade output template\n" +
+        "  --source <path>, -s <path>       source file to document\n" +
+        "  --tests <path>, -t <path>        qunit tests file\n" +
+        "  --title <string>, -n <string>    documentation title\n" // +
+//        "  --wrap <string>, -w <string>     wrap node.js module for testing\n" // not currently supported
+    );
+    process.exit(0);
+}
+
+var jadeOpts       = {},
+    filename       = parsed.source,
+    qunitTestFile  = parsed.tests ? fs.readFileSync(parsed.tests) + '' : '',
+    templateFile   = parsed.template ? parsed.template : path.dirname(require.resolve('jsdog')) + '/default.jade',
+    pageTitle      = parsed.title ? parsed.title : path.basename(filename),
+    dumpAfterParse = parsed.dump ? parsed.dump : false,
+    ll             = parsed.loglevel ? parsed.loglevel : 0,
+    wrapper        = parsed.wrap ? parsed.wrap : false;
+
+if (! pageTitle) pageTitle = filename;
+
+// main //
+jsdog.parseSourceFile(filename, parsed, function(data) {
+    if (dumpAfterParse) console.warn( util.inspect(data,false,4) );
+
+    jadeOpts.locals = {
+        pageTitle:     pageTitle,
+        docs:          data.docs,
+        genTime:       data.genTime,
+        src:           data.src,
+        qunitTestFile: qunitTestFile
+    };
+
+    jade.renderFile(templateFile, jadeOpts, function(err, html) {
+        if (err) throw err;
+        console.log(html);
+    });
+});
