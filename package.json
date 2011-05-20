@@ -7,7 +7,8 @@
     "directories":  { "lib":        ".",
                       "bin":        "bin"
                     },
-    "repository":   { "url":        ""  },
+    "homepage":     "https://github.com/psema4/jsdog",
+    "repository":   { "url":        "git@github.com:psema4/JSDog.git"  },
     "engines":      { "node":       "*" },
     "dependencies": { "jade":       "0.10.x",
                       "nopt":       "1.0.x"},
