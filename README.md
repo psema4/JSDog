@@ -52,9 +52,13 @@ Each line in a javascript comment block may contain the following basic text for
     [red[simple colors]         enclose text in square brackets, add left hand square bracket with color
     [green|black[ dual color ]  same as above, but separate foreground and background colors with a pipe
 
-## A Complete Example
+## Examples
 
-### Source Files
+### Example #1: JSDog Documentation
+
+You can find a live example of JSDog, run on itself, at http://psema4.github.com/JSDog/
+
+### Example #2: A simple project
 
 #### Javascript Library (lib/foo.js)
 
