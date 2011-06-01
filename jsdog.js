@@ -14,7 +14,7 @@
  * 
  * Email addresses and internet urls (FTP, HTTP[S]) found within the comment blocks are automatically converted
  *
- * @version 0.6.3
+ * @version 0.6.4
  * @author Scott Elcomb <psema4@gmail.com> http://www.psema4.com/
  */
 
@@ -24,20 +24,20 @@
  * @method jsdog
  */
 
-var fs = require('fs'),
-    util = require('util'), 
-    lineCounter = 0,
-    blocks = {},
-    blockCounter = 0,
-    inBlock = false,
+var fs = require('fs'),                             /** @property {Object} fs Node.js !fs! object */
+    util = require('util'),                         /** @property {Object} util Node.js !util! object */
+    lineCounter = 0,                                /** @property {Int} lineCounter Current line being processed */
+    blocks = {},                                    /** @property {Object} blocks Container for processed comment blocks */
+    blockCounter = 0,                               /** @property {Int} blockCounter Number of comment blocks processed */
+    inBlock = false,                                /** @property {Bool} inBlock Flags whether engine is in a comment block or not */
 
-    logLevel = [ false, true, "verbose", "super" ],
-    logging = logLevel[0],
+    logLevel = [ false, true, "verbose", "super" ], /** @property {Enum} logLevel false, true, "verbose", or "super" */
+    logging = logLevel[0],                          /** @property {Mixed} logging Indexed pointer to a logLevel */
 
-    rex = {
+    rex = {                                         /** @property {Object} rex Regular expressions to test javascript against for jsdoc tags */
         // block control
-        inline:         /\/\*(.*)\*\//,
-        startBlock:     /\/\*\*/,
+        inline:         /\/\*+(.*)\*\//,
+        startBlock:     /\/\*+/,
         endBlock:       /\*\//,
         blockComment:   /\s*\*+\s*(.*)$/,
 
@@ -62,7 +62,8 @@ var fs = require('fs'),
         method:         /@method\s+(.*)/i,
         memberOf:       /@this\s+(.*)/i,
         param:          /@param\s+{(\w+)}\s+(\w+)\s+(.*)$/i,
-        returns:        /@returns\s+{(\w+)}\s+(.*)$/i
+        returns:        /@returns\s+{(\w+)}\s+(.*)$/i,
+        property:       /@(property|public|private|protected)\s+{(\w+)}\s+(\w+)\s+(.+)$/i
     };
 
 /**
@@ -76,7 +77,6 @@ function log(text) {
 
 /**
  * View jsdog.parseLine() source code for examples
- *
  * @method jsdog.formatterSimple
  * @param {string} line Line of test to reformat
  * @param {regex} re Capturing regular expression to test against
@@ -229,6 +229,26 @@ function parseLine(text, key) {
             desc:     parts[2]
         });
 
+    } else if (rex.property.test(text)) {
+        if (! blocks['block1'].publicProperties) blocks['block1'].publicProperties = [];
+        if (! blocks['block1'].privateProperties) blocks['block1'].privateProperties = [];
+        if (! blocks['block1'].protectedProperties) blocks['block1'].protectedProperties = [];
+
+        var parts = rex.property.exec(text);
+        var o = {
+            datatype: parts[2],
+            name:     parts[3],
+            desc:     parts[4]
+        }
+
+        if (parts[1] == 'private') {
+            blocks['block1'].privateProperties.push(o);
+        } else if (parts[1] == 'protected') {
+            blocks['block1'].protectedProperties.push(o);
+        } else {
+            blocks['block1'].publicProperties.push(o);
+        }
+
     } else {
         if (ignoreBlankLines) {
             if (text != "") blocks[key].text += text + "<br />\n";
@@ -347,7 +367,6 @@ function parseSourceFile(filename, cliOpts, fn) {
 
 /**
  * Reads a text file and sends the buffer to the specified callback
- *
  * @method jsdog.readSourceFile
  * @param {string} filename The filename to read
  * @param {function} fn Callback to execute when done

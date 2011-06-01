@@ -15,24 +15,44 @@ html(lang='en')
     link(href="http://code.jquery.com/qunit/git/qunit.css", rel="stylesheet", type="text/css")
 
     style(type="text/css")
-      #jsdog-logo              { position: absolute; bottom: 10px; right: 20px; z-index: 1000 !important; opacity: 0.25; filter:alpha(opacity=25); }
-      #ctx-container           { position: absolute; top: 0px; left: 0px; right: 0px; height: 32px; background-color: #eee; border: 1px dotted #ddd; }
-      #ctx-container button    { height: 30px; padding-top: 1px; padding-bottom: 1px; }
+      #jsdog-logo                 { position: absolute; bottom: 10px; right: 20px; z-index: 1000 !important; opacity: 0.25; filter:alpha(opacity=25); }
+      #ctx-container              { position: absolute; top: 0px; left: 0px; right: 0px; height: 32px; background-color: #eee; border: 1px dotted #ddd; }
+      #ctx-container button       { height: 30px; padding-top: 1px; padding-bottom: 1px; }
       #ctx-container a, a:active, a:visited { color: #00f; text-decoration: none; }
-      #ctx-container a:hover   { color: #00f; text-decoration: underline; }
-      img#logo                 { width: 80px; height: 24px; float: left; margin-top: 2px; margin-left: 2px; border: 1px solid #000; background-color: #fff; }
-      #doc-container           { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
-      div.block                { border-bottom: 1px solid #eee; margin-left: 1em; margin-right: 1em; padding-top: 1em; padding-bottom: 1em; }
-      #block0                  { margin-bottom: 1em; border-bottom: 3px double #000; }
-      p                        { margin: 0px; padding: 0px; }
-      ol.params                { list-style-type: lower-roman; margin: 0px; padding: 0px; margin-left: 1em; padding-left: 1em;  }
-      ol.returns               { list-style-type: lower-alpha; margin: 0px; padding: 0px; margin-left: 1em; padding-left: 1em;  }
-      ol.params li             { margin-left: 1em; padding-left: 1em; }
-      ol.returns li            { margin-left: 1em; padding-left: 1em; }
-      #test-container          { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
-      #src-container           { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
-      .syntaxhighlighter       { position: absolute !important; top: 0px; left: 0px; right: 0px; bottom: 0px; }
-      #footer                  { display: inline-block; margin-top: 0em; margin-left: 0em; border-top: 1px solid #ccc; min-width: 750px; font-style: italic; font-weight: bold; color: #fff; background-color: #aaa; padding: 0.5em; padding-left: 1.25em; }
+      #ctx-container a:hover      { color: #00f; text-decoration: underline; }
+      img#logo                    { width: 80px; height: 24px; float: left; margin-top: 2px; margin-left: 2px; border: 1px solid #000; background-color: #fff; }
+      #doc-container              { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
+      div.block                   { border-bottom: 1px solid #aaa; margin-left: 1em; margin-right: 1em; padding-top: 1em; padding-bottom: 1em; }
+      #block0                     { margin-bottom: 1em; border-bottom: 3px double #000; }
+      p                           { margin: 0px; padding: 0px; }
+      ul.public-properties        { list-style-type: none; margin: 0px; padding: 0px; }
+      ul.public-properties li     { border-bottom: 1px dotted #ccc; margin-left: 1em; padding: 0px; }
+      ul.public-properties li i:first-child { display: inline-block; width: 4em; }
+      ul.public-properties li b   { display: inline-block; width: 7em; }
+      ul.public-properties li:last-child { border-bottom: 0px solid #000; }
+      ul.private-properties       { list-style-type: none; margin: 0px; padding: 0px; }
+      ul.private-properties li    { border-bottom: 1px dotted #ccc; margin-left: 1em; padding: 0px; }
+      ul.private-properties li i:first-child { display: inline-block; width: 4em; }
+      ul.private-properties li b  { display: inline-block; width: 7em; }
+      ul.private-properties li:last-child { border-bottom: 0px solid #000; }
+      ul.protected-properties     { list-style-type: none; margin: 0px; padding: 0px; }
+      ul.protected-properties li  { border-bottom: 1px dotted #ccc; margin-left: 1em; padding: 0px; }
+      ul.protected-properties li i:first-child { display: inline-block; width: 4em; }
+      ul.protected-properties li b { display: inline-block; width: 7em; }
+      ul.protected-properties li:last-child { border-bottom: 0px solid #000; }
+      ol.params                   { list-style-type: lower-roman; margin: 0px; padding: 0px; margin-left: 1em; padding-left: 1em;  }
+      ol.params li                { margin-left: 1em; padding-left: 1em; border-bottom: 1px dotted #ccc; }
+      ol.params li i:first-child  { display: inline-block; width: 4em; }
+      ol.params li b              { display: inline-block; width: 7em; }
+      ol.params li:last-child     { border-bottom: 0px solid #000; }
+      ol.returns                  { list-style-type: lower-alpha; margin: 0px; padding: 0px; margin-left: 1em; padding-left: 1em;  }
+      ol.returns li               { margin-left: 1em; padding-left: 1em; border-bottom: 1px dotted #ccc; }
+      ol.returns li i:first-child { display: inline-block; width: 4em; }
+      ol.returns li:last-child    { border-bottom: 0px solid #000; }
+      #test-container             { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
+      #src-container              { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
+      .syntaxhighlighter          { position: absolute !important; top: 0px; left: 0px; right: 0px; bottom: 0px; }
+      #footer                     { display: inline-block; margin-top: 0em; margin-left: 0em; border-top: 1px solid #ccc; min-width: 750px; font-style: italic; font-weight: bold; color: #fff; background-color: #aaa; padding: 0.5em; padding-left: 1.25em; }
 
     //- include the source file for tests (if tests were included)
     - if (qunitTestFile)
@@ -81,6 +101,7 @@ html(lang='en')
 
     #doc-container(style="display: none;")
       - for (var block in docs)
+        - var counter = 0;
         - var b = docs[block]
           #block(id= b.id, class='block')
             - if (b.name)
@@ -104,6 +125,50 @@ html(lang='en')
                 p
                   b #{Key}: &nbsp;
                   !{val}
+              - }
+
+              - if (key == 'publicProperties') {
+                - if (b.id == 'block1') {
+                  - counter++;
+                  - if (counter == 1)
+                    h4 Properties
+                - }
+
+                u Public
+                ul.public-properties
+                  - each prop in val
+                    li
+                      i #{prop.datatype}
+                      &nbsp;
+                      b #{prop.name}
+                      &nbsp;
+                      !{prop.desc}
+              - }
+
+              - if (key == 'privateProperties') {
+                br
+                u Private
+                ul.private-properties
+                  - each prop in val
+                    li
+                      i #{prop.datatype}
+                      &nbsp;
+                      b #{prop.name}
+                      &nbsp;
+                      !{prop.desc}
+              - }
+
+              - if (key == 'protectedProperties') {
+                br
+                u Protected
+                ul.protected-properties
+                  - each prop in val
+                    li
+                      i #{prop.datatype}
+                      &nbsp;
+                      b #{prop.name}
+                      &nbsp;
+                      !{prop.desc}
               - }
 
               - if (key == 'params') {
