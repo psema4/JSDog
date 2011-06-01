@@ -1,6 +1,6 @@
 {
     "name":         "jsdog",
-    "version":      "0.6.4",
+    "version":      "0.6.5",
     "author":       "Scott Elcomb <psema4@gmail.com> (http://www.psema4.com/)",
     "description":  "Simple JSDoc documentation generator",
     "main":         "jsdog.js",

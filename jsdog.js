@@ -14,7 +14,7 @@
  * 
  * Email addresses and internet urls (FTP, HTTP[S]) found within the comment blocks are automatically converted
  *
- * @version 0.6.4
+ * @version 0.6.5
  * @author Scott Elcomb <psema4@gmail.com> http://www.psema4.com/
  */
 
