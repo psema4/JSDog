@@ -48,7 +48,7 @@ var fs = require('fs'),                             /** @property {Object} fs No
         // formatters
         bold:           /(\*\s*.*\s*\*)/,
         italic:         /(!\s*.*\s*!)/,
-        underline:      /(_\s*.*\s*_)/,
+        underline:      /\b_\s*(.*)\s*_\b/,
         larger:         /(\+\+\s*.*\s*\+\+)/,
         smaller:        /(--\s*.*\s*--)/,
         superscript:    /(\^\s*.*\s*\^)/,
@@ -127,7 +127,7 @@ function parseLine(text, key) {
     text = formatterSimple(text,
         rex.underline,
         "<u>%1</u>",
-        { postFormat: function(line) { return line.replace(/_/g, ''); } }
+        { postFormat: function(line) { return line.replace(/(\s+)_/, '$1').replace(/_(s+)/, '$1'); } }
     );
 
     // simple formatters - larger
