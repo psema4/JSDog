@@ -14,7 +14,7 @@
  * 
  * Email addresses and internet urls (FTP, HTTP[S]) found within the comment blocks are automatically converted
  *
- * @version 0.6.5
+ * @version 0.6.6
  * @author Scott Elcomb <psema4@gmail.com> http://www.psema4.com/
  */
 
@@ -24,17 +24,17 @@
  * @method jsdog
  */
 
-var fs = require('fs'),                             /** @property {Object} fs Node.js !fs! object */
-    util = require('util'),                         /** @property {Object} util Node.js !util! object */
-    lineCounter = 0,                                /** @property {Int} lineCounter Current line being processed */
-    blocks = {},                                    /** @property {Object} blocks Container for processed comment blocks */
-    blockCounter = 0,                               /** @property {Int} blockCounter Number of comment blocks processed */
-    inBlock = false,                                /** @property {Bool} inBlock Flags whether engine is in a comment block or not */
+var fs = require('fs'),                             /** @private {Object} fs Node.js !fs! object */
+    util = require('util'),                         /** @private {Object} util Node.js !util! object */
+    lineCounter = 0,                                /** @private {Int} lineCounter Current line being processed */
+    blocks = {},                                    /** @private {Object} blocks Container for processed comment blocks */
+    blockCounter = 0,                               /** @private {Int} blockCounter Number of comment blocks processed */
+    inBlock = false,                                /** @private {Bool} inBlock Flags whether engine is in a comment block or not */
 
-    logLevel = [ false, true, "verbose", "super" ], /** @property {Enum} logLevel false, true, "verbose", or "super" */
-    logging = logLevel[0],                          /** @property {Mixed} logging Indexed pointer to a logLevel */
+    logLevel = [ false, true, "verbose", "super" ], /** @private {Enum} logLevel false, true, "verbose", or "super" */
+    logging = logLevel[0],                          /** @private {Mixed} logging Indexed pointer to a logLevel */
 
-    rex = {                                         /** @property {Object} rex Regular expressions to test javascript against for jsdoc tags */
+    rex = {                                         /** @private {Object} rex Regular expressions to test javascript against for jsdoc tags */
         // block control
         inline:         /\/\*+(.*)\*\//,
         startBlock:     /\/\*+/,
