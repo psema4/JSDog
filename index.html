@@ -32,6 +32,10 @@ ol.returns                  { list-style-type: lower-alpha; margin: 0px; padding
 ol.returns li               { margin-left: 1em; padding-left: 1em; border-bottom: 1px dotted #ccc; }
 ol.returns li i:first-child { display: inline-block; width: 4em; }
 ol.returns li:last-child    { border-bottom: 0px solid #000; }
+ol.throws                   { list-style-type: disc; margin: 0px; padding: 0px; margin-left: 1em; padding-left: 1em;  }
+ol.throws li                { margin-left: 1em; padding-left: 1em; border-bottom: 1px dotted #ccc; }
+ol.throws li i:first-child  { display: inline-block; width: 10em; }
+ol.throws li:last-child     { border-bottom: 0px solid #000; }
 #test-container             { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
 #src-container              { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
 .syntaxhighlighter          { position: absolute !important; top: 0px; left: 0px; right: 0px; bottom: 0px; }
@@ -53,7 +57,7 @@ ol.returns li:last-child    { border-bottom: 0px solid #000; }
  * 
  * Email addresses and internet urls (FTP, HTTP[S]) found within the comment blocks are automatically converted
  *
- * @version 0.6.4
+ * @version 0.6.7
  * @author Scott Elcomb <psema4@gmail.com> http://www.psema4.com/
  */
 
@@ -63,17 +67,17 @@ ol.returns li:last-child    { border-bottom: 0px solid #000; }
  * @method jsdog
  */
 
-var fs = require('fs'),                             /** @property {Object} fs Node.js !fs! object */
-    util = require('util'),                         /** @property {Object} util Node.js !util! object */
-    lineCounter = 0,                                /** @property {Int} lineCounter Current line being processed */
-    blocks = {},                                    /** @property {Object} blocks Container for processed comment blocks */
-    blockCounter = 0,                               /** @property {Int} blockCounter Number of comment blocks processed */
-    inBlock = false,                                /** @property {Bool} inBlock Flags whether engine is in a comment block or not */
+var fs = require('fs'),                             /** @private {Object} fs Node.js !fs! object */
+    util = require('util'),                         /** @private {Object} util Node.js !util! object */
+    lineCounter = 0,                                /** @private {Int} lineCounter Current line being processed */
+    blocks = {},                                    /** @private {Object} blocks Container for processed comment blocks */
+    blockCounter = 0,                               /** @private {Int} blockCounter Number of comment blocks processed */
+    inBlock = false,                                /** @private {Bool} inBlock Flags whether engine is in a comment block or not */
 
-    logLevel = [ false, true, "verbose", "super" ], /** @property {Enum} logLevel false, true, "verbose", or "super" */
-    logging = logLevel[0],                          /** @property {Mixed} logging Indexed pointer to a logLevel */
+    logLevel = [ false, true, "verbose", "super" ], /** @private {Enum} logLevel false, true, "verbose", or "super" */
+    logging = logLevel[0],                          /** @private {Mixed} logging Indexed pointer to a logLevel */
 
-    rex = {                                         /** @property {Object} rex Regular expressions to test javascript against for jsdoc tags */
+    rex = {                                         /** @private {Object} rex Regular expressions to test javascript against for jsdoc tags */
         // block control
         inline:         /\/\*+(.*)\*\//,
         startBlock:     /\/\*+/,
@@ -87,7 +91,7 @@ var fs = require('fs'),                             /** @property {Object} fs No
         // formatters
         bold:           /(\*\s*.*\s*\*)/,
         italic:         /(!\s*.*\s*!)/,
-        underline:      /(_\s*.*\s*_)/,
+        underline:      /\b_\s*(.*)\s*_\b/,
         larger:         /(\+\+\s*.*\s*\+\+)/,
         smaller:        /(--\s*.*\s*--)/,
         superscript:    /(\^\s*.*\s*\^)/,
@@ -98,11 +102,13 @@ var fs = require('fs'),                             /** @property {Object} fs No
         version:        /@version\s+(.*)/i,
         constructor:    /@constructor/i,
         deprecated:     /@deprecated/i,
-        method:         /@method\s+(.*)/i,
+        event:          /@event/i,
+        method:         /@(method|function|name)\s+(.*)/i,
         memberOf:       /@this\s+(.*)/i,
         param:          /@param\s+{(\w+)}\s+(\w+)\s+(.*)$/i,
         returns:        /@returns\s+{(\w+)}\s+(.*)$/i,
-        property:       /@(property|public|private|protected)\s+{(\w+)}\s+(\w+)\s+(.+)$/i
+        property:       /@(property|public|private|protected)\s+{(\w+)}\s+(\w+)\s+(.+)$/i,
+        throws:         /@throws\s+{(\w+)}\s+(.*)$/i
     };
 
 /**
@@ -166,7 +172,7 @@ function parseLine(text, key) {
     text = formatterSimple(text,
         rex.underline,
         "<u>%1</u>",
-        { postFormat: function(line) { return line.replace(/_/g, ''); } }
+        { postFormat: function(line) { return line.replace(/(\s+)_/, '$1').replace(/_(s+)/, '$1'); } }
     );
 
     // simple formatters - larger
@@ -243,8 +249,11 @@ function parseLine(text, key) {
     } else if (rex.deprecated.test(text)) {
         blocks[key].deprecated = true;
 
+    } else if (rex.event.test(text)) {
+        blocks[key].event = true;
+
     } else if (rex.method.test(text)) {
-        blocks[key].name = rex.method.exec(text)[1];
+        blocks[key].name = rex.method.exec(text)[2];
 
     } else if (rex.memberOf.test(text)) {
         blocks[key].thisParam = rex.memberOf.exec(text)[1];
@@ -287,6 +296,15 @@ function parseLine(text, key) {
         } else {
             blocks['block1'].publicProperties.push(o);
         }
+
+    } else if (rex.throws.test(text)) {
+        if (! blocks[key].throws) blocks[key].throws = [];
+
+        var parts = rex.throws.exec(text);
+        blocks[key].throws.push({
+            datatype: parts[1],
+            desc:     parts[2]
+        });
 
     } else {
         if (ignoreBlankLines) {
@@ -667,11 +685,11 @@ Each line in a javascript comment block may contain simple formatters:<br />
 <br />
 Email addresses and internet urls (FTP, HTTP[S]) found within the comment blocks are automatically converted<br />
 <br />
-</p><p><b>Version: &nbsp;</b>0.6.4
+</p><p><b>Version: &nbsp;</b>0.6.7
 </p><p><b>Author: &nbsp;</b>Scott Elcomb &lt;psema4-at-gmail-dot-com&gt; <a href="http://www.psema4.com/">http://www.psema4.com/</a>
-</p></div><div id="block1" class="block"><b style="font-size: 20pt;">jsdog&nbsp;-&nbsp;</b><b style="color: green; font-variant: small-caps;">Constructor</b><p style="color: #777;"><br />
+</p></div><div id="block1" class="block"><b style="font-size: 20pt;">jsdog&nbsp;-&nbsp;</b><i>        method:         /@(method|function|name)\s+(.*)/i,</i><b style="color: green; font-variant: small-caps;">Constructor</b><p style="color: #777;"><br />
 Virtual constructor (NPM Module Wrapper)<br />
-</p><h4>Properties</h4><u>Public</u><ul class="public-properties"><li><i>Object</i>&nbsp;
+</p><h4>Properties</h4><u>Public</u><ul class="public-properties"></ul><br><u>Private</u><ul class="private-properties"><li><i>Object</i>&nbsp;
 <b>fs</b>&nbsp;
 Node.js <i>fs</i> object 
 </li><li><i>Object</i>&nbsp;
@@ -698,7 +716,7 @@ Indexed pointer to a logLevel
 </li><li><i>Object</i>&nbsp;
 <b>rex</b>&nbsp;
 Regular expressions to test javascript against for jsdoc tags 
-</li></ul><br><u>Private</u><ul class="private-properties"></ul><br><u>Protected</u><ul class="protected-properties"></ul></div><div id="block2" class="block"><b style="font-size: 20pt;">jsdog.log&nbsp;-&nbsp;</b><i>function log(text) </i><p style="color: #777;"><br />
+</li></ul><br><u>Protected</u><ul class="protected-properties"></ul></div><div id="block2" class="block"><b style="font-size: 20pt;">jsdog.log&nbsp;-&nbsp;</b><i>function log(text) </i><p style="color: #777;"><br />
 Emits a string of text to stderr when logging is turned on<br />
 </p><br><span>Parameters:</span><ol class="params"><li><i>string</i>&nbsp;
 <b>text</b>&nbsp;
@@ -756,7 +774,7 @@ printf compatable format string
 See examples at <a href="http://phpjs.org/functions/sprintf">http://phpjs.org/functions/sprintf</a>
 </li></ol><br><span>Returns:</span><ol class="returns"><li><i>string</i>&nbsp;
 Result of printf operation
-</li></ol></div><div id="footer"><p>Generated by&nbsp;<a href="http://github.com/psema4/jsdog">JSDog</a>&nbsp;in about 0.025 seconds
+</li></ol></div><div id="footer"><p>Generated by&nbsp;<a href="http://github.com/psema4/jsdog">JSDog</a>&nbsp;in about 0.005 seconds
 </p></div></div><div id="test-container" style="display: none;"><h1 id="qunit-header">JSDog Documentation</h1><h2 id="qunit-banner"></h2><h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol></div><div id="src-container" style="display: none;"><pre class="brush: js">/** ++*[black[jsdog.js]*++ - Simple JSDoc documentation generator
  *
  * For command-line usage see *`jsdog --help'*
@@ -773,7 +791,7 @@ Result of printf operation
  * 
  * Email addresses and internet urls (FTP, HTTP[S]) found within the comment blocks are automatically converted
  *
- * @version 0.6.4
+ * @version 0.6.7
  * @author Scott Elcomb &lt;psema4@gmail.com&gt; http://www.psema4.com/
  */
 
@@ -783,17 +801,17 @@ Result of printf operation
  * @method jsdog
  */
 
-var fs = require('fs'),                             /** @property {Object} fs Node.js !fs! object */
-    util = require('util'),                         /** @property {Object} util Node.js !util! object */
-    lineCounter = 0,                                /** @property {Int} lineCounter Current line being processed */
-    blocks = {},                                    /** @property {Object} blocks Container for processed comment blocks */
-    blockCounter = 0,                               /** @property {Int} blockCounter Number of comment blocks processed */
-    inBlock = false,                                /** @property {Bool} inBlock Flags whether engine is in a comment block or not */
+var fs = require('fs'),                             /** @private {Object} fs Node.js !fs! object */
+    util = require('util'),                         /** @private {Object} util Node.js !util! object */
+    lineCounter = 0,                                /** @private {Int} lineCounter Current line being processed */
+    blocks = {},                                    /** @private {Object} blocks Container for processed comment blocks */
+    blockCounter = 0,                               /** @private {Int} blockCounter Number of comment blocks processed */
+    inBlock = false,                                /** @private {Bool} inBlock Flags whether engine is in a comment block or not */
 
-    logLevel = [ false, true, &quot;verbose&quot;, &quot;super&quot; ], /** @property {Enum} logLevel false, true, &quot;verbose&quot;, or &quot;super&quot; */
-    logging = logLevel[0],                          /** @property {Mixed} logging Indexed pointer to a logLevel */
+    logLevel = [ false, true, &quot;verbose&quot;, &quot;super&quot; ], /** @private {Enum} logLevel false, true, &quot;verbose&quot;, or &quot;super&quot; */
+    logging = logLevel[0],                          /** @private {Mixed} logging Indexed pointer to a logLevel */
 
-    rex = {                                         /** @property {Object} rex Regular expressions to test javascript against for jsdoc tags */
+    rex = {                                         /** @private {Object} rex Regular expressions to test javascript against for jsdoc tags */
         // block control
         inline:         /\/\*+(.*)\*\//,
         startBlock:     /\/\*+/,
@@ -807,7 +825,7 @@ var fs = require('fs'),                             /** @property {Object} fs No
         // formatters
         bold:           /(\*\s*.*\s*\*)/,
         italic:         /(!\s*.*\s*!)/,
-        underline:      /(_\s*.*\s*_)/,
+        underline:      /\b_\s*(.*)\s*_\b/,
         larger:         /(\+\+\s*.*\s*\+\+)/,
         smaller:        /(--\s*.*\s*--)/,
         superscript:    /(\^\s*.*\s*\^)/,
@@ -818,11 +836,13 @@ var fs = require('fs'),                             /** @property {Object} fs No
         version:        /@version\s+(.*)/i,
         constructor:    /@constructor/i,
         deprecated:     /@deprecated/i,
-        method:         /@method\s+(.*)/i,
+        event:          /@event/i,
+        method:         /@(method|function|name)\s+(.*)/i,
         memberOf:       /@this\s+(.*)/i,
         param:          /@param\s+{(\w+)}\s+(\w+)\s+(.*)$/i,
         returns:        /@returns\s+{(\w+)}\s+(.*)$/i,
-        property:       /@(property|public|private|protected)\s+{(\w+)}\s+(\w+)\s+(.+)$/i
+        property:       /@(property|public|private|protected)\s+{(\w+)}\s+(\w+)\s+(.+)$/i,
+        throws:         /@throws\s+{(\w+)}\s+(.*)$/i
     };
 
 /**
@@ -886,7 +906,7 @@ function parseLine(text, key) {
     text = formatterSimple(text,
         rex.underline,
         &quot;&lt;u&gt;%1&lt;/u&gt;&quot;,
-        { postFormat: function(line) { return line.replace(/_/g, ''); } }
+        { postFormat: function(line) { return line.replace(/(\s+)_/, '$1').replace(/_(s+)/, '$1'); } }
     );
 
     // simple formatters - larger
@@ -963,8 +983,11 @@ function parseLine(text, key) {
     } else if (rex.deprecated.test(text)) {
         blocks[key].deprecated = true;
 
+    } else if (rex.event.test(text)) {
+        blocks[key].event = true;
+
     } else if (rex.method.test(text)) {
-        blocks[key].name = rex.method.exec(text)[1];
+        blocks[key].name = rex.method.exec(text)[2];
 
     } else if (rex.memberOf.test(text)) {
         blocks[key].thisParam = rex.memberOf.exec(text)[1];
@@ -1007,6 +1030,15 @@ function parseLine(text, key) {
         } else {
             blocks['block1'].publicProperties.push(o);
         }
+
+    } else if (rex.throws.test(text)) {
+        if (! blocks[key].throws) blocks[key].throws = [];
+
+        var parts = rex.throws.exec(text);
+        blocks[key].throws.push({
+            datatype: parts[1],
+            desc:     parts[2]
+        });
 
     } else {
         if (ignoreBlankLines) {
