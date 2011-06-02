@@ -14,7 +14,7 @@
  * 
  * Email addresses and internet urls (FTP, HTTP[S]) found within the comment blocks are automatically converted
  *
- * @version 0.6.6
+ * @version 0.6.7
  * @author Scott Elcomb <psema4@gmail.com> http://www.psema4.com/
  */
 
@@ -59,11 +59,13 @@ var fs = require('fs'),                             /** @private {Object} fs Nod
         version:        /@version\s+(.*)/i,
         constructor:    /@constructor/i,
         deprecated:     /@deprecated/i,
-        method:         /@method\s+(.*)/i,
+        event:          /@event/i,
+        method:         /@(method|function|name)\s+(.*)/i,
         memberOf:       /@this\s+(.*)/i,
         param:          /@param\s+{(\w+)}\s+(\w+)\s+(.*)$/i,
         returns:        /@returns\s+{(\w+)}\s+(.*)$/i,
-        property:       /@(property|public|private|protected)\s+{(\w+)}\s+(\w+)\s+(.+)$/i
+        property:       /@(property|public|private|protected)\s+{(\w+)}\s+(\w+)\s+(.+)$/i,
+        throws:         /@throws\s+{(\w+)}\s+(.*)$/i
     };
 
 /**
@@ -204,8 +206,11 @@ function parseLine(text, key) {
     } else if (rex.deprecated.test(text)) {
         blocks[key].deprecated = true;
 
+    } else if (rex.event.test(text)) {
+        blocks[key].event = true;
+
     } else if (rex.method.test(text)) {
-        blocks[key].name = rex.method.exec(text)[1];
+        blocks[key].name = rex.method.exec(text)[2];
 
     } else if (rex.memberOf.test(text)) {
         blocks[key].thisParam = rex.memberOf.exec(text)[1];
@@ -248,6 +253,15 @@ function parseLine(text, key) {
         } else {
             blocks['block1'].publicProperties.push(o);
         }
+
+    } else if (rex.throws.test(text)) {
+        if (! blocks[key].throws) blocks[key].throws = [];
+
+        var parts = rex.throws.exec(text);
+        blocks[key].throws.push({
+            datatype: parts[1],
+            desc:     parts[2]
+        });
 
     } else {
         if (ignoreBlankLines) {

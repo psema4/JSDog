@@ -49,6 +49,10 @@ html(lang='en')
       ol.returns li               { margin-left: 1em; padding-left: 1em; border-bottom: 1px dotted #ccc; }
       ol.returns li i:first-child { display: inline-block; width: 4em; }
       ol.returns li:last-child    { border-bottom: 0px solid #000; }
+      ol.throws                   { list-style-type: disc; margin: 0px; padding: 0px; margin-left: 1em; padding-left: 1em;  }
+      ol.throws li                { margin-left: 1em; padding-left: 1em; border-bottom: 1px dotted #ccc; }
+      ol.throws li i:first-child  { display: inline-block; width: 10em; }
+      ol.throws li:last-child     { border-bottom: 0px solid #000; }
       #test-container             { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
       #src-container              { position: absolute; top: 32px; left: 0px; right: 0px; bottom: 0px; overflow: auto; }
       .syntaxhighlighter          { position: absolute !important; top: 0px; left: 0px; right: 0px; bottom: 0px; }
@@ -115,6 +119,9 @@ html(lang='en')
 
             - if (b.deprecated)
               b(style='color: red; font-variant: small-caps;') Deprecated
+
+            - if (b.event)
+              b(style='color: orange; font-variant: small-caps;') Event
 
             - each val, key in b
               - if (key == 'text')
@@ -188,6 +195,17 @@ html(lang='en')
                 br
                 span Returns:
                 ol.returns
+                  - each ret in val
+                    li
+                      i #{ret.datatype}
+                      &nbsp;
+                      #{ret.desc}
+              - }
+
+              - if (key == 'throws') {
+                br
+                span Exceptions:
+                ol.throws
                   - each ret in val
                     li
                       i #{ret.datatype}
