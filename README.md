@@ -1,21 +1,27 @@
 # JSDog README
 
 ## Summary
-JSDog only supports a minimal subset of JSDoc tags, works only at a very coarse resolution, and (for now) is intended only to help provide basic in-browser class API documentation & regression testing.
+JSDog supports a minimal subset of JSDoc tags, works only at a very coarse resolution and (for now) intended to help provide basic in-browser class API documentation & regression testing.
 
 Input source files are broken up and parsed in blocks, where a "block" is essentially just a multi-line javascript comment. Inline comments for property tagging is also supported.
 
 ## Motivation
 
-Like dox*, jsdog was meant to be a quick jsdoc replacement that doesn't require java.  Dox didn't quite fit my needs and I'd been looking for an excuse to build my first non-trivial node.js module.
+Like dox*, jsdog was meant to be a quick jsdoc replacement that doesn't require java.
 
-In addition, jsdog includes jQuery's Qunit to provide regression testing and makes the test results available alongside generated documentation.
+JSDog includes jQuery's Qunit to provide regression testing and makes test results available alongside the generated documentation.
 
 * https://github.com/visionmedia/dox
- 
+
+#### See also
+
+doc.md - a jsdoc to markdown converter
+
+https://github.com/Pita/doc.md
+
 ## Installation
 
-Should just be a simple `npm install jsdog`
+`npm install -g jsdog`
 
 ## Required Modules
 
